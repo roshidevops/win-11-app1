@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: win11-clone-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: win11-clone
+  template:
+    metadata:
+      labels:
+        app: win11-clone
+    spec:
+      containers:
+      - name: win11-clone-container
+        image: win11-clone:latest # <-- Simple local image name
+        imagePullPolicy: Never # <-- Crucial: Use the local image only
+        ports:
+        - containerPort: 3000
