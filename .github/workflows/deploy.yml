@@ -29,10 +29,10 @@ jobs:
       - name: Deploy to k3s
         run: |
           # Update the deployment to use the new image tag
-          /usr/local/bin/kubectl set image deployment/win11-clone-deployment win11-clone-container=win11-clone:${{ github.sha }}
+          sudo /usr/local/bin/kubectl set image deployment/win11-clone-deployment win11-clone-container=win11-clone:${{ github.sha }}
 
           # Apply manifests to ensure service is correct
-          /usr/local/bin/kubectl apply -f deployment.yaml -f service.yaml
+          sudo /usr/local/bin/kubectl apply -f deployment.yaml -f service.yaml
 
           # Verify the rollout completes successfully
-          /usr/local/bin/kubectl rollout status deployment/win11-clone-deployment
+          sudo /usr/local/bin/kubectl rollout status deployment/win11-clone-deployment
