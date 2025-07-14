@@ -16,7 +16,7 @@ jobs:
       - name: Build local Docker image
         run: |
           # Build the image with a unique tag based on the commit SHA
-          docker build -t win11-clone:${{ github.sha }} .
+          sudo docker build -t win11-clone:${{ github.sha }} .
           
       - name: Load image into k3s cluster
         run: |
