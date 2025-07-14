@@ -24,9 +24,12 @@ jobs:
           
       - name: Deploy to k3s
         run: |
-          sudo /usr/local/bin/kubectl apply -f deployment.yaml
-          sudo /usr/local/bin/kubectl apply -f service.yaml
+          # Apply the manifests from the k8s/ directory
+          sudo /usr/local/bin/kubectl apply -f k8s/deployment.yaml
+          sudo /usr/local/bin/kubectl apply -f k8s/service.yaml
 
+          # Update the deployment with the new image tag
           sudo /usr/local/bin/kubectl set image deployment/win11-clone-deployment win11-clone-container=win11-clone:${{ github.sha }}
 
+          # Verify the rollout completes successfully
           sudo /usr/local/bin/kubectl rollout status deployment/win11-clone-deployment
