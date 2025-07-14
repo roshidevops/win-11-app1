@@ -21,7 +21,7 @@ jobs:
       - name: Load image into k3s cluster
         run: |
           # Save the newly built image to a tar file
-          docker save win11-clone:${{ github.sha }} -o image.tar
+          sudo docker save win11-clone:${{ github.sha }} -o image.tar
           
           # Import the tar file into the k3s internal container registry
           sudo k3s ctr images import image.tar
