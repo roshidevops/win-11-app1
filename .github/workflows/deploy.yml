@@ -1,0 +1,38 @@
+name: Build Locally and Deploy to k3s
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted # Use the runner on your EC2 instance
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build local Docker image
+        run: |
+          # Build the image with a unique tag based on the commit SHA
+          docker build -t win11-clone:${{ github.sha }} .
+          
+      - name: Load image into k3s cluster
+        run: |
+          # Save the newly built image to a tar file
+          docker save win11-clone:${{ github.sha }} -o image.tar
+          
+          # Import the tar file into the k3s internal container registry
+          sudo k3s ctr images import image.tar
+          
+      - name: Deploy to k3s
+        run: |
+          # Update the deployment to use the new image tag
+          /usr/local/bin/kubectl set image deployment/win11-clone-deployment win11-clone-container=win11-clone:${{ github.sha }}
+
+          # Apply manifests to ensure service is correct
+          /usr/local/bin/kubectl apply -f deployment.yaml -f service.yaml
+
+          # Verify the rollout completes successfully
+          /usr/local/bin/kubectl rollout status deployment/win11-clone-deployment
