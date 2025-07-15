@@ -1,20 +1,27 @@
-# Use an official lightweight Node.js image
-FROM node:18-alpine
+# ---- Build Stage ----
+# Creates a temporary container to build your app
+FROM node:18-alpine AS builder
 
-# Set the working directory inside the container
-WORKDIR /usr/src/app
+WORKDIR /app
 
-# Copy package.json and package-lock.json to leverage Docker cache
+# Copy package files and install ALL dependencies (including dev dependencies)
 COPY package*.json ./
+RUN npm install
 
-# Install production dependencies
-RUN npm install --production
-
-# Copy the rest of your application's source code
+# Copy the rest of your source code
 COPY . .
 
-# Expose the port your app runs on
+# Run the build script defined in your package.json
+RUN npm run build
+
+# ---- Production Stage ----
+# Creates the final, lightweight container
+FROM nginx:stable-alpine
+
+# Copy the built static files from the 'builder' stage into the Nginx server directory
+COPY --from=builder /app/build /usr/share/nginx/html
+
+# Tell Docker the container is listening on port 3000
 EXPOSE 3000
 
-# Define the command to run your app
-CMD [ "node", "src/index.js" ]
+# The default Nginx command will start the server automatically
