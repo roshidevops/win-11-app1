@@ -4,24 +4,24 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files and install ALL dependencies (including dev dependencies)
+# Copy package files and install ALL dependencies
 COPY package*.json ./
 RUN npm install
 
 # Copy the rest of your source code
 COPY . .
 
-# Run the build script defined in your package.json
+# Run the build script to create the '/app/build' folder
 RUN npm run build
 
 # ---- Production Stage ----
-# Creates the final, lightweight container
+# Creates the final, lightweight container using Nginx
 FROM nginx:stable-alpine
 
-# Copy the built static files from the 'builder' stage into the Nginx server directory
+# Copy only the built static files from the 'builder' stage
 COPY --from=builder /app/build /usr/share/nginx/html
 
-# Tell Docker the container is listening on port 3000
-EXPOSE 3000
+# Expose port 80 for the Nginx web server
+EXPOSE 80
 
-# The default Nginx command will start the server automatically
+# Nginx starts automatically
